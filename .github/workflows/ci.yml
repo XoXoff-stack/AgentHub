@@ -1,0 +1,63 @@
+name: Quality checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Frontend and Rust checks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          package-manager-cache: false
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential curl wget file libxdo-dev libssl-dev \
+            libayatana-appindicator3-dev librsvg2-dev patchelf libwebkit2gtk-4.1-dev \
+            libgtk-3-dev libglib2.0-dev pkg-config
+
+      - name: Install Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+          "$HOME/.cargo/bin/rustup" toolchain install stable --profile minimal
+          "$HOME/.cargo/bin/rustup" default stable
+          "$HOME/.cargo/bin/rustup" component add rustfmt clippy --toolchain stable
+
+      - name: Install frontend dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Frontend lint and build
+        run: |
+          npm run lint
+          npm run build
+
+      - name: Rust format
+        working-directory: src-tauri
+        run: cargo fmt --all -- --check
+
+      - name: Rust check
+        working-directory: src-tauri
+        run: cargo check
+
+      - name: Rust tests
+        working-directory: src-tauri
+        run: cargo test
+
+      - name: Rust clippy
+        working-directory: src-tauri
+        run: cargo clippy --all-targets --all-features -- -D warnings
