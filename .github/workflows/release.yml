@@ -121,17 +121,27 @@ jobs:
             exit 1
           fi
 
-          if [ ! -d release-assets ] || [ -z "$(find release-assets -maxdepth 1 -type f -print -quit)" ]; then
-            echo "No installer artifacts were downloaded." >&2
+          if [ ! -d release-assets ]; then
+            echo "The release-assets directory was not created." >&2
             exit 1
           fi
 
+          mapfile -d '' -t ASSETS < <(find release-assets -type f -print0 | sort -z)
+
+          if [ "${#ASSETS[@]}" -eq 0 ]; then
+            echo "No installer files were downloaded." >&2
+            exit 1
+          fi
+
+          echo "Files to publish:"
+          printf ' - %s\n' "${ASSETS[@]}"
+
           if gh release view "$EVENT_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$EVENT_TAG" release-assets/* \
+            gh release upload "$EVENT_TAG" "${ASSETS[@]}" \
               --repo "$GITHUB_REPOSITORY" \
               --clobber
           else
-            gh release create "$EVENT_TAG" release-assets/* \
+            gh release create "$EVENT_TAG" "${ASSETS[@]}" \
               --repo "$GITHUB_REPOSITORY" \
               --title "AgentHub $EVENT_TAG" \
               --generate-notes
