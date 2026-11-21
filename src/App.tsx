@@ -16,7 +16,7 @@ import {
   Activity, AlertCircle, ArrowUp, ArrowUpRight, Check,
   ChevronDown, ChevronRight, CircleHelp, Code2, Command, Copy, Cpu,
   FileCode2, Folder, FolderOpen, FolderPlus, Gauge,
-  GitBranch, HardDrive, History, LayoutPanelRight, LoaderCircle, MessageSquare,
+  GitBranch, HardDrive, History, LoaderCircle, MessageSquare,
   MoreHorizontal, PanelLeftClose, PanelLeftOpen, PanelRightClose, PanelRightOpen,
   Plus, RefreshCw, Search, Settings2, ShieldCheck, Square, Sun,
   Trash2, X, Zap,
@@ -396,7 +396,7 @@ export default function App() {
     { label: 'Open project', hint: 'Choose a local folder', icon: FolderOpen, run: () => void chooseProject() },
     { label: 'Scan for agents', hint: 'Detect installed tools', icon: RefreshCw, run: () => void scan() },
     { label: 'Refresh local models', hint: 'Query the selected model server', icon: Cpu, run: () => void refreshModels(selectedProvider) },
-    { label: 'Toggle right panel', hint: 'Show or hide developer tools', icon: LayoutPanelRight, run: () => setRightOpen((current) => !current) },
+    { label: 'Toggle right panel', hint: 'Show or hide developer tools', icon: PanelRightOpen, run: () => setRightOpen((current) => !current) },
     { label: 'Settings', hint: 'Appearance and application info', icon: Settings2, run: () => setSettingsOpen(true) },
   ], [createConversation, chooseProject, scan, refreshModels, selectedProvider]);
   const filteredActions = actions.filter((item) => item.label.toLowerCase().includes(paletteQuery.toLowerCase()));
@@ -499,7 +499,7 @@ export default function App() {
         <main className="main-panel">
           <div className="main-toolbar">
             <div className="breadcrumbs"><span className="crumb-muted">Workspace</span><ChevronRight size={13} /><span>{activeConversation?.title ?? 'New session'}</span>{projectPath && <><span className="crumb-separator">·</span><span className="project-crumb"><Folder size={12} />{projectPath.split(/[\\/]/).filter(Boolean).pop()}</span></>}</div>
-            <div className="toolbar-right"><span className="connection-indicator"><span className={desktop ? 'connection-dot online' : 'connection-dot'} />{desktop ? 'Local runtime' : 'Preview mode'}</span><button className="toolbar-icon" onClick={() => setRightOpen((current) => !current)}><LayoutPanelRight size={15} /></button></div>
+            <div className="toolbar-right"><span className="connection-indicator"><span className={desktop ? 'connection-dot online' : 'connection-dot'} />{desktop ? 'Local runtime' : 'Preview mode'}</span><button className="toolbar-icon" onClick={() => setRightOpen((current) => !current)}><PanelRightOpen size={15} /></button></div>
           </div>
 
           <div className="conversation-scroll">
